@@ -6,8 +6,8 @@ on:
       - "v*"
   workflow_dispatch:
     inputs:
-      tag:
-        description: "Release tag to build and upload assets for, for example v1.0.0"
+      tag_name:
+        description: "Existing release tag to build and upload assets for, for example v1.0.0"
         required: true
         type: string
 
@@ -16,7 +16,7 @@ permissions:
 
 env:
   BINARY_NAME: kube-risk-scan
-  RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
+  RELEASE_TAG: ${{ github.event.inputs.tag_name || github.ref_name }}
 
 jobs:
   verify:
@@ -26,7 +26,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.tag || github.ref }}
+          ref: ${{ github.event.inputs.tag_name || github.ref }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -74,7 +74,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.tag || github.ref }}
+          ref: ${{ github.event.inputs.tag_name || github.ref }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -128,13 +128,21 @@ jobs:
           cd dist
           sha256sum *.tar.gz > checksums.txt
 
-      - name: Upload assets to GitHub Release
+      - name: Upload assets to existing GitHub Release
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null
+          gh release upload "$RELEASE_TAG" dist/*.tar.gz dist/checksums.txt --repo "$GITHUB_REPOSITORY"
+
+      - name: Create GitHub Release and upload assets
+        if: github.event_name != 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
-          name: ${{ env.RELEASE_TAG }}
           files: |
             dist/*.tar.gz
             dist/checksums.txt
           fail_on_unmatched_files: true
-          overwrite_files: true

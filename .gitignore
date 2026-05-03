@@ -1,0 +1,25 @@
+.gocache/
+.gomodcache/
+kube-risk-scan
+kube-risk-scan.exe
+kube-risk-demo/
+report.md
+generated/
+test-output/
+
+# Local environment and credential material
+.env
+.env.*
+*.env
+kubeconfig
+*.kubeconfig
+token
+*.token
+secret
+*.secret
+credentials
+credential
+*.credentials
+*.credential
+*.pem
+*.key

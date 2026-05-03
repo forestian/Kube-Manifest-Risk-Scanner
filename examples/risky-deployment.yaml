@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risky-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: risky-api
+  template:
+    metadata:
+      labels:
+        app: risky-api
+    spec:
+      serviceAccountName: default
+      automountServiceAccountToken: true
+      hostNetwork: true
+      volumes:
+        - name: host-root
+          hostPath:
+            path: /
+      containers:
+        - name: api
+          image: nginx:latest
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+            allowPrivilegeEscalation: true
+            runAsUser: 0
+            capabilities:
+              add:
+                - SYS_ADMIN
+                - NET_ADMIN
+          volumeMounts:
+            - name: host-root
+              mountPath: /host

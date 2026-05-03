@@ -26,6 +26,26 @@ Run from source:
 go run . version
 ```
 
+## Install from GitHub Releases
+
+Download a prebuilt binary from the GitHub Releases page.
+
+Linux/macOS:
+
+```sh
+tar -xzf <archive>.tar.gz
+chmod +x kube-risk-scan
+./kube-risk-scan version
+```
+
+Windows:
+
+Download the Windows archive, extract it, and run:
+
+```powershell
+kube-risk-scan.exe version
+```
+
 ## Commands
 
 Create a demo project:
